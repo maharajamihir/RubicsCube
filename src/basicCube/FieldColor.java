@@ -4,9 +4,10 @@ import java.awt.Color;
 
 public enum FieldColor {
 	RED, ORANGE, GREEN, BLUE, WHITE, YELLOW;
-
 	private FieldColor opposite;
-
+	public static final Color MYORANGE = new Color(255, 102, 0);
+	public static final Color MYGREEN = new Color(0, 102, 0);
+	
 	public void setOpposite(FieldColor opposite) {
 		this.opposite = opposite;
 		opposite.opposite = this;
@@ -47,9 +48,9 @@ public enum FieldColor {
 		case BLUE:
 			return Color.BLUE;
 		case GREEN:
-			return Color.GREEN;
+			return MYGREEN;
 		case ORANGE:
-			return Color.ORANGE;
+			return MYORANGE;
 		case RED:
 			return Color.RED;
 		case WHITE:

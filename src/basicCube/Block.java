@@ -107,10 +107,14 @@ public class Block {
 		this.top = top;
 	}
 
+	public Block createCopy() {
+		return new Block(top, right, bottom, left, front, back);
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		s.append("  ________"+ System.lineSeparator());
+		s.append("  ________" + System.lineSeparator());
 		s.append(" /   " + FieldColor.getCharRepresentation(top) + "   /|" + System.lineSeparator());
 		s.append("/_______/ |" + System.lineSeparator());
 		s.append("|       | |" + System.lineSeparator());

@@ -6,10 +6,15 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.*;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -106,7 +111,8 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 			}
 		}
 
-		public void move(int dx, int dy) {
+		private void move(int dx, int dy) {
+			width += dx;
 			ulf.x += dx;
 			urf.x += dx;
 			llf.x += dx;
@@ -116,6 +122,7 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 			llb.x += dx;
 			lrb.x += dx;
 
+			height += dy;
 			ulf.y += dy;
 			urf.y += dy;
 			llf.y += dy;
@@ -130,10 +137,10 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 						el.x += dx;
 						el.y += dy;
 					})));
-
+			init();
 		}
 
-		public void paintTop(Graphics g) {
+		private void paintTop(Graphics g) {
 			for (int x = 0; x < 3; x++) {
 				for (int z = 0; z < 3; z++) {
 					Color color = currentCube.cube[x][0][z].getTop() == null ? Color.BLACK
@@ -160,7 +167,7 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 			}
 		}
 
-		public void paintFront(Graphics g) {
+		private void paintFront(Graphics g) {
 			for (int x = 0; x < 3; x++) {
 				for (int y = 0; y < 3; y++) {
 					Color color = currentCube.cube[x][y][0].getFront() == null ? Color.BLACK
@@ -189,7 +196,7 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 			}
 		}
 
-		public void paintLeft(Graphics g) {
+		private void paintLeft(Graphics g) {
 			for (int x = 0; x < 3; x++) {
 				for (int y = 0; y < 3; y++) {
 					Color color = currentCube.cube[0][x][y].getLeft() == null ? Color.BLACK
@@ -217,9 +224,9 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 		}
 
 		public void project(Graphics g) {
+			paintLeft(g);
 			paintTop(g);
 			paintFront(g);
-			paintLeft(g);
 		}
 
 		float zoomFactor = 5;
@@ -276,31 +283,91 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 
 	/// Internal Attributes
 	private Map<Integer, Boolean> isKeyPressed = new HashMap<>();
-	private Queue<Move> moves = new ArrayDeque<>();
+	private List<Cube> states = new ArrayList<>() {
+		@Override
+		public boolean add(Cube e) {
+			if (size() > 15)
+				remove(0);
+			return super.add(e);
+		}
+	};
+	private Queue<Move> moves = new ArrayDeque<>() {
+		@Override
+		public boolean add(Move e) {
+			if (this.size() < 5)
+				return super.add(e);
+			return false;
+		}
+	};
 	private Runnable moveHandler = () -> {
 		while (true) {
 			try {
 				Thread.sleep(5);
+				if (!moves.isEmpty()) {
+					states.add(currentCube.createCopy());
+					moves.remove().execute();
+				}
 			} catch (InterruptedException ignore) {
-			}
-			if (!moves.isEmpty()) {
-				moves.remove().execute();
+				System.err.println("Thread was interrupted");
 			}
 		}
 	};
 
-	private void turnUp(int x) {
+	private synchronized void addRandomMove() {
+		switch (new Random().nextInt(12)) {
+		case 0 -> moves.add(() -> turnUp(2));
+		case 1 -> moves.add(() -> turnDown(2));
+		case 2 -> moves.add(() -> turnLeft(2));
+		case 3 -> moves.add(() -> turnRight(2));
+		case 4 -> moves.add(() -> turnUp(0));
+		case 5 -> moves.add(() -> turnDown(0));
+		case 6 -> moves.add(() -> turnLeft(0));
+		case 7 -> moves.add(() -> turnRight(0));
+		case 8 -> moves.add(() -> turnCube(x -> turnUp(x)));
+		case 9 -> moves.add(() -> turnCube((x) -> turnDown(x)));
+		case 10 -> moves.add(() -> turnCube((x) -> turnLeft(x)));
+		case 11 -> moves.add(() -> turnCube((x) -> turnRight(x)));
+		}
+	}
+
+	private synchronized void turnUp(int x) {
 		currentCube.turnUp(x);
 		cube.init();
 		panel.repaint();
 	}
 
-	private void turnDown(int x) {
+	private synchronized void turnDown(int x) {
 		currentCube.turnUp(x);
 		currentCube.turnUp(x);
 		currentCube.turnUp(x);
 		cube.init();
 		panel.repaint();
+	}
+
+	private synchronized void turnRight(int y) {
+		currentCube.turnRight(y);
+		cube.init();
+		panel.repaint();
+	}
+
+	private synchronized void turnLeft(int y) {
+		currentCube.turnRight(y);
+		currentCube.turnRight(y);
+		currentCube.turnRight(y);
+		cube.init();
+		panel.repaint();
+	}
+
+	private synchronized void turnCube(Consumer<Integer> c) {
+		IntStream.range(0, 3).forEach(t -> c.accept(t));
+	}
+
+	private synchronized void back() {
+		if (!states.isEmpty()) {
+			this.currentCube = states.remove(states.size() - 1);
+			cube.init();
+			panel.repaint();
+		}
 	}
 
 	/// Status Getters: Use these to check mouse and keyboard status
@@ -316,11 +383,26 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (e.isShiftDown()) {
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_UP -> moves.add(() -> turnCube(x -> turnUp(x)));
+			case KeyEvent.VK_DOWN -> moves.add(() -> turnCube((x) -> turnDown(x)));
+			case KeyEvent.VK_LEFT -> moves.add(() -> turnCube((x) -> turnLeft(x)));
+			case KeyEvent.VK_RIGHT -> moves.add(() -> turnCube((x) -> turnRight(x)));
+			}
+			return;
+		}
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_UP -> moves.add(() -> turnUp(2));
 		case KeyEvent.VK_DOWN -> moves.add(() -> turnDown(2));
+		case KeyEvent.VK_LEFT -> moves.add(() -> turnLeft(2));
+		case KeyEvent.VK_RIGHT -> moves.add(() -> turnRight(2));
 		case KeyEvent.VK_W -> moves.add(() -> turnUp(0));
 		case KeyEvent.VK_S -> moves.add(() -> turnDown(0));
+		case KeyEvent.VK_A -> moves.add(() -> turnLeft(0));
+		case KeyEvent.VK_D -> moves.add(() -> turnRight(0));
+		case KeyEvent.VK_SPACE -> addRandomMove();
+		case KeyEvent.VK_Z -> back();
 		}
 		isKeyPressed.put(e.getKeyCode(), true);
 	}
@@ -383,23 +465,8 @@ public class CubeGui extends JFrame implements MouseListener, MouseMotionListene
 		int dx = e.getX() - prevMove.x;
 		int dy = e.getY() - prevMove.y;
 
-		if (e.isAltDown()) {
-			// rotate
-
-			if (e.isShiftDown()) {
-				// rot Z
-				rotX += dx / ROT_FACTOR;
-				rotY += 0;
-				rotZ += dy / ROT_FACTOR;
-			} else {
-				rotX += dx / ROT_FACTOR;
-				rotY += dy / ROT_FACTOR;
-				rotZ += 0;
-			}
-		} else {
-			// move
-			cube.move(dx, dy);
-		}
+		// move
+		cube.move(dx, dy);
 
 		panel.repaint();
 		prevMove = e.getPoint();

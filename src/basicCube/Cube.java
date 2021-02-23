@@ -27,6 +27,11 @@ public class Cube {
 		createCube();
 	}
 
+	private Cube(Block[][][] cube) {
+		this.cube = cube;
+		this.size = cube.length;
+	}
+
 	public void turnUp(int xCoordinate) {
 		if (xCoordinate >= size)
 			throw new IllegalArgumentException("You are trying to turn a side, which isnt in the cube!");
@@ -56,7 +61,35 @@ public class Cube {
 	}
 
 	public void turnRight(int yCoordinate) {
-		
+		if (yCoordinate >= size)
+			throw new IllegalArgumentException("You are trying to turn a side, which isnt in the cube!");
+		try {
+			Map<Coordinate, Coordinate> turnMap = Files.lines(Path.of("src/basicCube/turnMap.csv"))
+					.dropWhile(line -> !line.contains("RIGHT")).skip(1).takeWhile(line -> !line.contains("done"))
+					.map(line -> line.replaceAll("c", "" + yCoordinate).replaceAll("s", "" + (size - 1)))
+					.map(line -> line.split(","))
+					.collect(Collectors.toMap(left -> new Coordinate(left[0]), li -> new Coordinate(li[1])));
+
+			List<Pair<Block, Coordinate>> blockList = IntStream.range(0, size)
+					.mapToObj(x -> IntStream.range(0, size)
+							.mapToObj(z -> new Pair<Block, Coordinate>(cube[x][yCoordinate][z],
+									new Coordinate(x, yCoordinate, z))))
+					.reduce(Stream.empty(), (s1, s2) -> Stream.concat(s1, s2)).collect(Collectors.toList());
+			blockList.stream().forEach(pair -> {
+				Block block = pair.t;
+				block.turnRight();
+				if (turnMap.containsKey(pair.u)) {
+					Coordinate turnTo = turnMap.get(pair.u);
+					cube[turnTo.getX()][turnTo.getY()][turnTo.getZ()] = block;
+				}
+			});
+		} catch (IOException ignore) {
+		}
+
+	}
+
+	private void turnCubeRight() {
+		IntStream.range(0, 3).forEach(y -> turnRight(y));
 	}
 
 	// methods that create cube
@@ -76,34 +109,10 @@ public class Cube {
 		}
 	}
 
-	private void createFrontLayer() {
+	private void createFrontLayer(FieldColor color) {
 		for (int x = 0; x < cube.length; x++) {
 			for (int y = 0; y < cube.length; y++) {
-				cube[x][y][0].setFront(BLUE);
-			}
-		}
-	}
-
-	private void createBackLayer() {
-		for (int x = 0; x < cube.length; x++) {
-			for (int y = 0; y < cube.length; y++) {
-				cube[x][y][size - 1].setBack(GREEN);
-			}
-		}
-	}
-
-	private void createLeftLayer() {
-		for (int z = 0; z < cube.length; z++) {
-			for (int y = 0; y < cube.length; y++) {
-				cube[0][z][y].setLeft(RED);
-			}
-		}
-	}
-
-	private void createRightLayer() {
-		for (int y = 0; y < cube.length; y++) {
-			for (int z = 0; z < cube.length; z++) {
-				cube[size - 1][y][z].setRight(ORANGE);
+				cube[x][y][0].setFront(color);
 			}
 		}
 	}
@@ -118,10 +127,27 @@ public class Cube {
 		}
 		createTopLayer();
 		createBottomLayer();
-		createFrontLayer();
-		createBackLayer();
-		createLeftLayer();
-		createRightLayer();
+		createFrontLayer(BLUE);
+		turnCubeRight();
+		createFrontLayer(RED);
+		turnCubeRight();
+		createFrontLayer(GREEN);
+		turnCubeRight();
+		createFrontLayer(ORANGE);
+		turnCubeRight();
+
+//		createBackLayer();
+//		createLeftLayer();
+//		createRightLayer();
+	}
+
+	public Cube createCopy() {
+		Block[][][] copy = new Block[size][size][size];
+		IntStream.range(0, size)
+				.forEach(x -> IntStream.range(0, size).forEach(y -> IntStream.range(0, size).forEach(z -> {
+					copy[x][y][z] = cube[x][y][z].createCopy();
+				})));
+		return new Cube(copy);
 	}
 
 	public static void main(String args[]) {
