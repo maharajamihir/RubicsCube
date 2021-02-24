@@ -1,6 +1,9 @@
 # RubicsCube
 
-| First Header  | Second Header |
+| Key  | Move |
 | ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+| ↑  | Right Side Up  |
+| ↓  | Right Side Down  |
+
+
+Arrow symbols ← ↑ → ↓ Arrow and direction symbols in
