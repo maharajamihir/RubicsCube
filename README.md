@@ -15,5 +15,6 @@
 | z | back |
 
 ## Gifs of Cube:
-I have uploaded some gifs [here], so you can see what the program looks like:
+I have uploaded some gifs [here](https://drive.google.com/folderview?id=1eLA_Ay4mAeNofOeY7l7ZYu2roff85D3Z)
+, so you can see what the program looks like:
 [Click here for Cube simulation gif](https://drive.google.com/folderview?id=1eLA_Ay4mAeNofOeY7l7ZYu2roff85D3Z)
