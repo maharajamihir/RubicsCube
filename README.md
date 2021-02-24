@@ -1,5 +1,6 @@
 # RubicsCube
 
+## Controls:
 | Key  | Move |
 | ------------- | ------------- |
 | ↑  | Right side up  |
