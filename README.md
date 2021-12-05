@@ -1,12 +1,10 @@
 # RubicsCube
 
 ## Preview
-![solving cube](./preview/RubicsCubeSimulation_2.gif)
-
 <img src="./preview/RubicsCubeSimulation_2.gif"
      alt="simulation"
      style="width: 40%;" />
-<img src="./preview/RubicsCubeSimulation_16x.mp4"
+<img src="./preview/RubicsCubeSimulation_hochkant.gif"
      alt="solving cube"
      style="width: 40%;" />
 
