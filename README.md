@@ -1,7 +1,14 @@
 # RubicsCube
 
 ## Preview
-![solving cube](https://drive.google.com/file/d/1XFDxhtb4w4GIl-QLKHjID76Gc9dvu1Kq/view?usp=sharing)
+![solving cube](./preview/RubicsCubeSimulation_2.gif)
+
+<img src="./preview/RubicsCubeSimulation_2.gif"
+     alt="simulation"
+     style="width: 40%;" />
+<img src="./preview/RubicsCubeSimulation_16x.mp4"
+     alt="solving cube"
+     style="width: 40%;" />
 
 ## Controls:
 | Key  | Move |
