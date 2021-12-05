@@ -1,12 +1,13 @@
 # RubicsCube
 
 ## Preview
-<img src="./preview/RubicsCubeSimulation_2.gif"
-     alt="simulation"
-     style="width: 40%;" />
 <img src="./preview/RubicsCubeSimulation_hochkant.gif"
      alt="solving cube"
-     style="width: 20%;" />
+     style="width: 25%;" />
+<img src="./preview/RubicsCubeSimulation_2.gif"
+     alt="simulation"
+     style="width: 50%;" />
+
 
 ## Controls:
 | Key  | Move |
