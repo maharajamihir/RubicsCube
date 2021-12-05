@@ -6,7 +6,7 @@
      style="width: 40%;" />
 <img src="./preview/RubicsCubeSimulation_hochkant.gif"
      alt="solving cube"
-     style="width: 40%;" />
+     style="width: 20%;" />
 
 ## Controls:
 | Key  | Move |
