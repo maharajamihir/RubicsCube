@@ -1,5 +1,8 @@
 # RubicsCube
 
+## Preview
+![solving cube](https://drive.google.com/file/d/1XFDxhtb4w4GIl-QLKHjID76Gc9dvu1Kq/view?usp=sharing)
+
 ## Controls:
 | Key  | Move |
 | ------------- | ------------- |
