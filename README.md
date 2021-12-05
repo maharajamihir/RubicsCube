@@ -5,7 +5,10 @@
 
 <img src="./preview/RubicsCubeSimulation_2.gif"
      alt="simulation"
-     style="width: 49%;" />
+     style="width: 40%;" />
+<img src="./preview/RubicsCubeSimulation_16x.mp4"
+     alt="solving cube"
+     style="width: 40%;" />
 
 ## Controls:
 | Key  | Move |
