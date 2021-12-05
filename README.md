@@ -3,6 +3,10 @@
 ## Preview
 ![solving cube](./preview/RubicsCubeSimulation_2.gif)
 
+<img src="./preview/RubicsCubeSimulation_2.gif"
+     alt="simulation"
+     style="width: 49%;" />
+
 ## Controls:
 | Key  | Move |
 | ------------- | ------------- |
